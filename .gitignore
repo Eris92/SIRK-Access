@@ -1,0 +1,10 @@
+bin/
+obj/
+.vs/
+*.user
+*.db*
+*.pfx
+.env
+appsettings.Local.json
+publish/
+Data/
