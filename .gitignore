@@ -4,7 +4,12 @@ obj/
 *.user
 *.db*
 *.pfx
+*.p12
+*.pem
+*.key
 .env
 appsettings.Local.json
 publish/
+artifacts/
 Data/
+__pycache__/
