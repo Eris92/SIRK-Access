@@ -14,7 +14,7 @@ Self-hosted access and secure information sharing portal. **MVP / non-production
 
 ## Deployment
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/SECURITY.md](docs/SECURITY.md). This version uses SQLite in WAL mode, local file storage, Windows DPAPI and a single IIS worker. No HA or KCD implementation in this release. The portal is a launcher, not a network tunnel or auth proxy. Use Entra Application Proxy for protected legacy Windows Authentication apps.
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), [docs/SECURITY.md](docs/SECURITY.md), [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) and [docs/CI.md](docs/CI.md). This version uses SQLite in WAL mode, local file storage, Windows DPAPI and a single IIS worker. No HA or KCD implementation in this release. The portal is a launcher, not a network tunnel or auth proxy. Use Entra Application Proxy for protected legacy Windows Authentication apps.
 
 ## Build
 

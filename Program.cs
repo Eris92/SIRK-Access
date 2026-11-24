@@ -36,7 +36,16 @@ b.Services.AddAuthentication(o=>{o.DefaultScheme="cookie";o.DefaultChallengeSche
 .AddOpenIdConnect("oidc",o=>{
     o.Authority=$"https://login.microsoftonline.com/{tenant}/v2.0";o.ClientId=client;o.ClientSecret=Required("Entra:ClientSecret");o.ResponseType="code";o.UsePkce=true;o.MapInboundClaims=false;o.SaveTokens=false;
     o.TokenValidationParameters=new TokenValidationParameters{ NameClaimType="name",RoleClaimType="roles",ValidateIssuer=true,ValidateAudience=true };
-    o.Events.OnTokenValidated=ctx=>{ if(ctx.Principal?.FindFirst("tid")?.Value!=tenant || !Guid.TryParse(ctx.Principal.FindFirst("oid")?.Value,out _)) ctx.Fail("Invalid tenant or object id."); else { var h=ctx.HttpContext; h.RequestServices.GetRequiredService<Store>().Audit(ctx.Principal.FindFirst("oid")!.Value,h.Connection.RemoteIpAddress?.ToString()??"", "auth.login","entra","success",h.TraceIdentifier); } return Task.CompletedTask; };
+    o.Events.OnTokenValidated=ctx=>{
+        var principal=ctx.Principal;
+        if(principal is null || !Guid.TryParse(principal.FindFirst("tid")?.Value,out var tid) || tid!=Guid.Parse(tenant) || !Guid.TryParse(principal.FindFirst("oid")?.Value,out var oid))
+            ctx.Fail("Invalid tenant or object id.");
+        else {
+            var h=ctx.HttpContext;
+            h.RequestServices.GetRequiredService<Store>().Audit(oid.ToString("D"),h.Connection.RemoteIpAddress?.ToString()??"", "auth.login","entra","success",h.TraceIdentifier);
+        }
+        return Task.CompletedTask;
+    };
     o.Events.OnRemoteFailure=ctx=>{var h=ctx.HttpContext;h.RequestServices.GetRequiredService<Store>().Audit("anonymous",h.Connection.RemoteIpAddress?.ToString()??"","auth.login","entra","failure",h.TraceIdentifier);ctx.HandleResponse();h.Response.StatusCode=401;return h.Response.WriteAsync("Authentication failed.");};
 });
 b.Services.AddAuthorization(o=>{o.AddPolicy("Portal",p=>p.RequireAuthenticatedUser().RequireRole("Admin","Employee","Helpdesk","External","Auditor"));o.AddPolicy("Writer",p=>p.RequireRole("Admin","Employee","Helpdesk"));o.AddPolicy("Admin",p=>p.RequireRole("Admin"));o.AddPolicy("Audit",p=>p.RequireRole("Admin","Auditor"));});
